@@ -1,0 +1,86 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello InitLoginController!{% endblock %}
+
+{% block body %}
+
+<div class="example-wrapper">
+    <h1>Hello <b style="color: green;"><span name="app_init_username"></span></b> and welcome to the API interface! </h1>
+    <div>
+        <form name="app_init_login">
+            <div class="imgcontainer">
+                <h1>Login Form</h1>
+            </div>
+            <div class="container">
+                <label for="uname"><b>Email</b></label>
+                <input type="email" placeholder="Enter email" name="email" required>
+
+                <label for="psw"><b>Password</b></label>
+                <input type="password" placeholder="Enter Password" name="password" required>
+
+                <button type="submit">Login</button>
+                
+                <h2> Generated token: <span name="app_init_login_generated_token"></span> </h2>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script type="text/javascript">
+    
+    console.log('Ini login page')
+    
+    // getting the actual user if connected
+    window.user = {{ app.user|serialize('jsonld')|raw }};
+    
+    if (window.user != null) {
+        document.querySelector('span[name="app_init_username"]').innerHTML = window.user.username
+    }
+
+    const form = document.querySelector('form[name="app_init_login"]');
+    // Function to send a POST request
+    async function sendPostRequest(emailValue, passwordValue) {
+
+        // Create the request body
+        const requestBody = {
+            email: emailValue,
+            password: passwordValue
+        };
+        
+        try {
+            // Send the POST request
+            const response = await fetch('/init/login', {
+                method: 'POST', // HTTP method
+                headers: {
+                    'Content-Type': 'application/json', // Specify the content type
+                },
+                body: JSON.stringify(requestBody) // Convert the request body to JSON
+            });
+
+            // Check if the response is successful
+            if (response.ok) {
+                const responseData = await response.json();
+                alert('Login successful:  ' + JSON.stringify(responseData));
+            } else {
+                alert('Login failed: ' + response.status + '  Text : ' + response.statusText);
+            }
+
+        } catch (error) {
+            alert('An error occurred: ' + error);
+        }
+    }
+
+    // Form login event listener
+    form.addEventListener("submit", (event) => {
+        // prevent default event
+        event.preventDefault();
+        // getting form data
+        const email = form.querySelector('input[name="email"]').value;
+        const password = form.querySelector('input[name="password"]').value;
+        // sending login request
+        sendPostRequest(email, password);
+        // Show the tocken to the user to connect to API-Plateform or add it in the localStorage in case of JS application
+    });
+
+</script>
+{% endblock %}
