@@ -1,11 +1,17 @@
 <?php
 
-namespace App\Entity;
+namespace App\Entity\Security;
 
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
 use ApiPlatform\Serializer\Filter\PropertyFilter;
-use App\Repository\RoleRepository;
+use App\Repository\Security\RoleRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -13,7 +19,27 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: RoleRepository::class)]
 #[ApiResource(
-    description:'Main application role entity representation. Use to manage all the access in the application.'
+    description:'Main application role entity representation. Use to manage all the access in the application.',
+    operations:[
+        new Get(
+            security: 'is_granted("ROLE_ROLE_GET")'
+        ),
+        new GetCollection(
+            security: 'is_granted("ROLE_ROLE_GETCOLLECTION")'
+        ),
+        new Post(
+            security: 'is_granted("ROLE_ROLE_POST")'
+        ),
+        new Put(
+            security: 'is_granted("ROLE_ROLE_PUT")'
+        ),
+        new Patch(
+            security: 'is_granted("ROLE_ROLE_PATCH")'
+        ),
+        new Delete(
+            security: 'is_granted("ROLE_ROLE_DELETE")'
+        )
+    ]
 )]
 #[ApiFilter(PropertyFilter::class)]
 class Role

@@ -1,23 +1,23 @@
 <?php
 
-namespace App\Repository;
+namespace App\Repository\Security;
 
-use App\Entity\Role;
+use App\Entity\Security\RolePermissionAssociation;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<Role>
+ * @extends ServiceEntityRepository<RolePermissionAssociation>
  */
-class RoleRepository extends ServiceEntityRepository
+class RolePermissionAssociationRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, Role::class);
+        parent::__construct($registry, RolePermissionAssociation::class);
     }
 
     //    /**
-    //     * @return Role[] Returns an array of Role objects
+    //     * @return RolePermissionAssociation[] Returns an array of RolePermissionAssociation objects
     //     */
     //    public function findByExampleField($value): array
     //    {
@@ -31,7 +31,7 @@ class RoleRepository extends ServiceEntityRepository
     //        ;
     //    }
 
-    //    public function findOneBySomeField($value): ?Role
+    //    public function findOneBySomeField($value): ?RolePermissionAssociation
     //    {
     //        return $this->createQueryBuilder('r')
     //            ->andWhere('r.exampleField = :val')

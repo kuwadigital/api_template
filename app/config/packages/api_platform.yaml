@@ -2,6 +2,11 @@ api_platform:
     title: TEMPLATE API Platform
     version: 1.0.0
     defaults:
-        stateless: true
+        stateless: false
         cache_headers:
             vary: ['Content-Type', 'Authorization', 'Origin']
+    swagger:
+        api_keys:
+            access_token:
+                name: Authorization
+                type: header

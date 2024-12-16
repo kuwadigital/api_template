@@ -3,7 +3,7 @@
 namespace App\Controller;
 
 use ApiPlatform\Metadata\IriConverterInterface;
-use App\Entity\User;
+use App\Entity\Security\User;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -26,9 +26,13 @@ class InitLoginController extends AbstractController
             ], 401);
         }
 
+        /**
+         * @todo: delete all existing token and create a new one with all the acutal Roles and return it to the requester
+         */
         return $this->json(
             [
-                'user' => $iriConverterInterface->getIriFromResource($user)
+                'user' => $iriConverterInterface->getIriFromResource($user),
+                'tokens' => $user->getValidTokenStrings()
             ]
         );
     }

@@ -1,15 +1,43 @@
 <?php
 
-namespace App\Entity;
+namespace App\Entity\Security;
 
 use ApiPlatform\Metadata\ApiResource;
-use App\Repository\PermissionRepository;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
+use App\Repository\Security\PermissionRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: PermissionRepository::class)]
-#[ApiResource]
+#[ApiResource(
+    description:'Main application Permission entity representation. Use to repressent the permission on each object in the application. Example: a permission User, Role, Book....',
+    operations:[
+        new Get(
+            security: 'is_granted("ROLE_PERMISSION_GET")'
+        ),
+        new GetCollection(
+            security: 'is_granted("ROLE_PERMISSION_GETCOLLECTION")'
+        ),
+        new Post(
+            security: 'is_granted("ROLE_PERMISSION_POST")'
+        ),
+        new Put(
+            security: 'is_granted("ROLE_PERMISSION_PUT")'
+        ),
+        new Patch(
+            security: 'is_granted("ROLE_PERMISSION_PATCH")'
+        ),
+        new Delete(
+            security: 'is_granted("ROLE_PERMISSION_DELETE")'
+        )
+    ]
+)]
 class Permission
 {
     #[ORM\Id]

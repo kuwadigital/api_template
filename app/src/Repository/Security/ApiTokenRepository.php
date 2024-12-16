@@ -1,40 +1,40 @@
 <?php
 
-namespace App\Repository;
+namespace App\Repository\Security;
 
-use App\Entity\Permission;
+use App\Entity\Security\ApiToken;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<Permission>
+ * @extends ServiceEntityRepository<ApiToken>
  */
-class PermissionRepository extends ServiceEntityRepository
+class ApiTokenRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, Permission::class);
+        parent::__construct($registry, ApiToken::class);
     }
 
     //    /**
-    //     * @return Permission[] Returns an array of Permission objects
+    //     * @return ApiToken[] Returns an array of ApiToken objects
     //     */
     //    public function findByExampleField($value): array
     //    {
-    //        return $this->createQueryBuilder('p')
-    //            ->andWhere('p.exampleField = :val')
+    //        return $this->createQueryBuilder('a')
+    //            ->andWhere('a.exampleField = :val')
     //            ->setParameter('val', $value)
-    //            ->orderBy('p.id', 'ASC')
+    //            ->orderBy('a.id', 'ASC')
     //            ->setMaxResults(10)
     //            ->getQuery()
     //            ->getResult()
     //        ;
     //    }
 
-    //    public function findOneBySomeField($value): ?Permission
+    //    public function findOneBySomeField($value): ?ApiToken
     //    {
-    //        return $this->createQueryBuilder('p')
-    //            ->andWhere('p.exampleField = :val')
+    //        return $this->createQueryBuilder('a')
+    //            ->andWhere('a.exampleField = :val')
     //            ->setParameter('val', $value)
     //            ->getQuery()
     //            ->getOneOrNullResult()

@@ -7,9 +7,9 @@ namespace App\Enum;
  */
 enum PermissionAction: string
 {
-    case CREATE = 'create';
-    case READ = 'read';
-    case UPDATE = 'update';
-    case DELETE = 'delete';
-    case PATCH = 'patch';
+    case CREATE = 'CREATE';
+    case READ = 'READ';
+    case UPDATE = 'UPDATE';
+    case DELETE = 'DELETE';
+    case PATCH = 'PATCH';
 }

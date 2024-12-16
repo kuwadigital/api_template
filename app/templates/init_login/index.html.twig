@@ -1,11 +1,13 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello InitLoginController!{% endblock %}
+{% block title %}API Login Form{% endblock %}
 
 {% block body %}
 
 <div class="example-wrapper">
-    <h1>Hello <b style="color: green;"><span name="app_init_username"></span></b> and welcome to the API interface! </h1>
+    <h1>Hello <b style="color: green;"><span name="app_init_username"></span></b> ! Here is the token for your Access :  </h1>
+    <h1 class="h1_token_information"></h1>
+    <h1 class="logout_information">To logout, go to : /init/logout </h1>
     <div>
         <form name="app_init_login">
             <div class="imgcontainer">
@@ -27,17 +29,36 @@
 </div>
 
 <script type="text/javascript">
-    
-    console.log('Ini login page')
+
+    // Show an element
+    var show = function (elem) {
+        elem.style.display = 'block';
+    };
+
+    // Hide an element
+    var hide = function (elem) {
+        elem.style.display = 'none';
+    };
+
+    // Hiding the link to log out
+    hide(document.querySelector('.logout_information'));
     
     // getting the actual user if connected
     window.user = {{ app.user|serialize('jsonld')|raw }};
     
+    // check if the user was found
     if (window.user != null) {
-        document.querySelector('span[name="app_init_username"]').innerHTML = window.user.username
+
+        document.querySelector('span[name="app_init_username"]').innerHTML = window.user.username;
+        document.querySelector('.h1_token_information').innerHTML = window.user.validTokenStrings.join('<br>');
+        hide(document.querySelector('form[name="app_init_login"]'));
+        show(document.querySelector('.logout_information'));
+
     }
 
+    // Adding event on form
     const form = document.querySelector('form[name="app_init_login"]');
+    
     // Function to send a POST request
     async function sendPostRequest(emailValue, passwordValue) {
 
@@ -59,8 +80,13 @@
 
             // Check if the response is successful
             if (response.ok) {
-                const responseData = await response.json();
-                alert('Login successful:  ' + JSON.stringify(responseData));
+                //const responseData = await response.json();
+                //console.log(responseData);
+                /**
+                 * Reload the page to show the list of available token
+                 **/
+                window.location.reload();
+
             } else {
                 alert('Login failed: ' + response.status + '  Text : ' + response.statusText);
             }
