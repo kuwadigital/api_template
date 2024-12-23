@@ -31,7 +31,7 @@ use Symfony\Component\Validator\Constraints as Assert;
             normalizationContext: ['groups' => ['user:item:get']]
         ),
         new GetCollection(
-            security: "is_granted('ROLE_USER_GETCOLLECTION')",
+            security: "is_granted('ROLE_USER_GET_COLLECTION')",
             normalizationContext: ['groups' => ['user:collection:get']]
         ),
         new Post(

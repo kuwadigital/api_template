@@ -25,7 +25,7 @@ use Symfony\Component\Validator\Constraints as Assert;
             security: 'is_granted("ROLE_ROLE_GET")'
         ),
         new GetCollection(
-            security: 'is_granted("ROLE_ROLE_GETCOLLECTION")'
+            security: 'is_granted("ROLE_ROLE_GET_COLLECTION")'
         ),
         new Post(
             security: 'is_granted("ROLE_ROLE_POST")'
@@ -70,15 +70,15 @@ class Role
     private Collection $users;
 
     /**
-     * @var Collection<int, RolePermissionAssociation>
+     * @var Collection<int, Permission>
      */
-    #[ORM\ManyToMany(targetEntity: RolePermissionAssociation::class, mappedBy: 'role')]
-    private Collection $rolePermissionAssociations;
-
+    #[ORM\ManyToMany(targetEntity: Permission::class, inversedBy: 'roles')]
+    private Collection $permissions;
+    
     public function __construct()
     {
         $this->users = new ArrayCollection();
-        $this->rolePermissionAssociations = new ArrayCollection();
+        $this->permissions = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -162,29 +162,27 @@ class Role
     }
 
     /**
-     * @return Collection<int, RolePermissionAssociation>
+     * @return Collection<int, Permission>
      */
-    public function getRolePermissionAssociations(): Collection
+    public function getPermissions(): Collection
     {
-        return $this->rolePermissionAssociations;
+        return $this->permissions;
     }
 
-    public function addRolePermissionAssociation(RolePermissionAssociation $rolePermissionAssociation): static
+    public function addPermission(Permission $permission): static
     {
-        if (!$this->rolePermissionAssociations->contains($rolePermissionAssociation)) {
-            $this->rolePermissionAssociations->add($rolePermissionAssociation);
-            $rolePermissionAssociation->addRole($this);
+        if (!$this->permissions->contains($permission)) {
+            $this->permissions->add($permission);
         }
 
         return $this;
     }
 
-    public function removeRolePermissionAssociation(RolePermissionAssociation $rolePermissionAssociation): static
+    public function removePermission(Permission $permission): static
     {
-        if ($this->rolePermissionAssociations->removeElement($rolePermissionAssociation)) {
-            $rolePermissionAssociation->removeRole($this);
-        }
+        $this->permissions->removeElement($permission);
 
         return $this;
     }
+
 }

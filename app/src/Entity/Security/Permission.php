@@ -22,7 +22,7 @@ use Doctrine\ORM\Mapping as ORM;
             security: 'is_granted("ROLE_PERMISSION_GET")'
         ),
         new GetCollection(
-            security: 'is_granted("ROLE_PERMISSION_GETCOLLECTION")'
+            security: 'is_granted("ROLE_PERMISSION_GET_COLLECTION")'
         ),
         new Post(
             security: 'is_granted("ROLE_PERMISSION_POST")'
@@ -58,16 +58,19 @@ class Permission
     private ?\DateTimeImmutable $updatedAt = null;
 
     /**
-     * @var Collection<int, RolePermissionAssociation>
+     * @var Collection<int, Role>
      */
-    #[ORM\OneToMany(targetEntity: RolePermissionAssociation::class, mappedBy: 'permission')]
-    private Collection $rolePermissionAssociations;
+    #[ORM\ManyToMany(targetEntity: Role::class, mappedBy: 'permissions')]
+    private Collection $roles;
+
+    #[ORM\Column(length: 255)]
+    private ?string $permissionAction = null;
 
     public function __construct()
     {
-        $this->rolePermissionAssociations = new ArrayCollection();
+        $this->roles = new ArrayCollection();
     }
-
+    
     public function getId(): ?int
     {
         return $this->id;
@@ -122,32 +125,42 @@ class Permission
     }
 
     /**
-     * @return Collection<int, RolePermissionAssociation>
+     * @return Collection<int, Role>
      */
-    public function getRolePermissionAssociations(): Collection
+    public function getRoles(): Collection
     {
-        return $this->rolePermissionAssociations;
+        return $this->roles;
     }
 
-    public function addRolePermissionAssociation(RolePermissionAssociation $rolePermissionAssociation): static
+    public function addRole(Role $role): static
     {
-        if (!$this->rolePermissionAssociations->contains($rolePermissionAssociation)) {
-            $this->rolePermissionAssociations->add($rolePermissionAssociation);
-            $rolePermissionAssociation->setPermission($this);
+        if (!$this->roles->contains($role)) {
+            $this->roles->add($role);
+            $role->addPermission($this);
         }
 
         return $this;
     }
 
-    public function removeRolePermissionAssociation(RolePermissionAssociation $rolePermissionAssociation): static
+    public function removeRole(Role $role): static
     {
-        if ($this->rolePermissionAssociations->removeElement($rolePermissionAssociation)) {
-            // set the owning side to null (unless already changed)
-            if ($rolePermissionAssociation->getPermission() === $this) {
-                $rolePermissionAssociation->setPermission(null);
-            }
+        if ($this->roles->removeElement($role)) {
+            $role->removePermission($this);
         }
 
         return $this;
     }
+
+    public function getPermissionAction(): ?string
+    {
+        return $this->permissionAction;
+    }
+
+    public function setPermissionAction(string $permissionAction): static
+    {
+        $this->permissionAction = $permissionAction;
+
+        return $this;
+    }
+
 }
