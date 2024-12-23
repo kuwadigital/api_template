@@ -32,7 +32,10 @@ final class ApiTokenFactory extends PersistentProxyObjectFactory
             'ownedby' => UserFactory::new(),
             'scope' => [
                 'ROLE_USER_GET',
-                'ROLE_USER_GETCOLLECTION'
+                'ROLE_USER_GET_COLLECTION',
+                'ROLE_USER_POST',
+                'ROLE_USER_PUT',
+                'ROLE_USER_PATCH'
             ]
         ];
     }

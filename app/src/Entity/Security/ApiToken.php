@@ -2,13 +2,20 @@
 
 namespace App\Entity\Security;
 
+use App\Entity\Traits\TimestampableTrait;
 use App\Repository\Security\ApiTokenRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: ApiTokenRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 class ApiToken
 {
+    /**
+     * Add the traits for created At and Updated At
+     */
+    use TimestampableTrait;
+
     /**
      * The prefix of the generated token from the API: later we can let login from other ressources like github, facebook .....
      * @var string
@@ -42,12 +49,6 @@ class ApiToken
         'user:item:get'
     ])]
     private array $scope = [];
-
-    #[ORM\Column]
-    #[Groups([
-        'user:item:get'
-    ])]
-    private ?\DateTimeImmutable $createdAt = null;
 
     public function __construct(string $tokenType = self::PERSONAL_ACCESS_TOKEN_PREFIX){
         $this->token = $tokenType.bin2hex(random_bytes(32));
@@ -105,19 +106,7 @@ class ApiToken
 
         return $this;
     }
-
-    public function getCreatedAt(): ?\DateTimeImmutable
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTimeImmutable $createdAt): static
-    {
-        $this->createdAt = $createdAt;
-
-        return $this;
-    }
-
+    
     public function isValid(): bool
     {
         return $this->expiresAt === null || $this->expiresAt > new \DateTimeImmutable();

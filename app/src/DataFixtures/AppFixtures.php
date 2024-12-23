@@ -20,7 +20,7 @@ class AppFixtures extends Fixture
             'username' => 'API Developper',
         ]);
 
-        ApiTokenFactory::createMany(2, function () {
+        ApiTokenFactory::createMany(1, function () {
             return [
                 'ownedby' => UserFactory::random()
             ];

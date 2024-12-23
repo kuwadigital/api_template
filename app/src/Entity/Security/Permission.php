@@ -9,29 +9,39 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
+use App\Entity\Traits\TimestampableTrait;
 use App\Repository\Security\PermissionRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: PermissionRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 #[ApiResource(
     description:'Main application Permission entity representation. Use to repressent the permission on each object in the application. Example: a permission User, Role, Book....',
     operations:[
         new Get(
-            security: 'is_granted("ROLE_PERMISSION_GET")'
+            security: 'is_granted("ROLE_PERMISSION_GET")',
+            normalizationContext: ['groups' => ['permission:item:get', 'default']]
         ),
         new GetCollection(
-            security: 'is_granted("ROLE_PERMISSION_GET_COLLECTION")'
+            security: 'is_granted("ROLE_PERMISSION_GET_COLLECTION")',
+            normalizationContext: ['groups' => ['permission:collection:get', 'default']]
         ),
         new Post(
-            security: 'is_granted("ROLE_PERMISSION_POST")'
+            security: 'is_granted("ROLE_PERMISSION_POST")',
+            normalizationContext: ['groups' => ['permission:item:get']],
+            denormalizationContext: ['groups' => ['permission:item:post']]
         ),
         new Put(
-            security: 'is_granted("ROLE_PERMISSION_PUT")'
+            security: 'is_granted("ROLE_PERMISSION_PUT")',
+            normalizationContext: ['groups' => ['permission:item:get']],
+            denormalizationContext: ['groups' => ['permission:item:put']]
         ),
         new Patch(
-            security: 'is_granted("ROLE_PERMISSION_PATCH")'
+            security: 'is_granted("ROLE_PERMISSION_PATCH")',
+            normalizationContext: ['groups' => ['permission:item:get']],
+            denormalizationContext: ['groups' => ['permission:item:patch']]
         ),
         new Delete(
             security: 'is_granted("ROLE_PERMISSION_DELETE")'
@@ -40,6 +50,11 @@ use Doctrine\ORM\Mapping as ORM;
 )]
 class Permission
 {
+    /**
+     * Add the traits for created At and Updated At
+     */
+    use TimestampableTrait;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -50,12 +65,6 @@ class Permission
 
     #[ORM\Column(length: 255)]
     private ?string $description = null;
-
-    #[ORM\Column]
-    private ?\DateTimeImmutable $createdAt = null;
-
-    #[ORM\Column]
-    private ?\DateTimeImmutable $updatedAt = null;
 
     /**
      * @var Collection<int, Role>
@@ -96,30 +105,6 @@ class Permission
     public function setDescription(string $description): static
     {
         $this->description = $description;
-
-        return $this;
-    }
-
-    public function getCreatedAt(): ?\DateTimeImmutable
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTimeImmutable $createdAt): static
-    {
-        $this->createdAt = $createdAt;
-
-        return $this;
-    }
-
-    public function getUpdatedAt(): ?\DateTimeImmutable
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(\DateTimeImmutable $updatedAt): static
-    {
-        $this->updatedAt = $updatedAt;
 
         return $this;
     }

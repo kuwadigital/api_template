@@ -9,6 +9,7 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
+use App\Entity\Traits\TimestampableTrait;
 use App\Repository\Security\UserRepository;
 use App\State\UserHashPasswordStateProcessor;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -22,17 +23,18 @@ use Symfony\Component\Serializer\Annotation\SerializedName;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
 #[ApiResource(
     description:'Main application user entity representation. First point of identification in the application.',
     operations:[
         new Get(
             security: 'is_granted("ROLE_USER_GET")',
-            normalizationContext: ['groups' => ['user:item:get']]
+            normalizationContext: ['groups' => ['user:item:get', 'default']]
         ),
         new GetCollection(
             security: "is_granted('ROLE_USER_GET_COLLECTION')",
-            normalizationContext: ['groups' => ['user:collection:get']]
+            normalizationContext: ['groups' => ['user:collection:get', 'default']]
         ),
         new Post(
             security: 'is_granted("ROLE_USER_POST")',
@@ -61,6 +63,11 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[UniqueEntity(fields: ['username'], message: 'It looks like another dragon took your username. ROAR!')]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
+    /**
+     * Add the traits for created At and Updated At
+     */
+    use TimestampableTrait;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]

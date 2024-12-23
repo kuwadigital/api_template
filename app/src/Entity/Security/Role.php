@@ -11,6 +11,7 @@ use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use ApiPlatform\Serializer\Filter\PropertyFilter;
+use App\Entity\Traits\TimestampableTrait;
 use App\Repository\Security\RoleRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -18,23 +19,32 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: RoleRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 #[ApiResource(
     description:'Main application role entity representation. Use to manage all the access in the application.',
     operations:[
         new Get(
-            security: 'is_granted("ROLE_ROLE_GET")'
+            security: 'is_granted("ROLE_ROLE_GET")',
+            normalizationContext: ['groups' => ['role:item:get', 'default']]
         ),
         new GetCollection(
-            security: 'is_granted("ROLE_ROLE_GET_COLLECTION")'
+            security: 'is_granted("ROLE_ROLE_GET_COLLECTION")',
+            normalizationContext: ['groups' => ['role:collection:get', 'default']]
         ),
         new Post(
-            security: 'is_granted("ROLE_ROLE_POST")'
+            security: 'is_granted("ROLE_ROLE_POST")',
+            normalizationContext: ['groups' => ['role:item:get']],
+            denormalizationContext: ['groups' => ['role:item:post']]
         ),
         new Put(
-            security: 'is_granted("ROLE_ROLE_PUT")'
+            security: 'is_granted("ROLE_ROLE_PUT")',
+            normalizationContext: ['groups' => ['role:item:get']],
+            denormalizationContext: ['groups' => ['role:item:put']]
         ),
         new Patch(
-            security: 'is_granted("ROLE_ROLE_PATCH")'
+            security: 'is_granted("ROLE_ROLE_PATCH")',
+            normalizationContext: ['groups' => ['role:item:get']],
+            denormalizationContext: ['groups' => ['role:item:patch']]
         ),
         new Delete(
             security: 'is_granted("ROLE_ROLE_DELETE")'
@@ -44,6 +54,11 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ApiFilter(PropertyFilter::class)]
 class Role
 {
+    /**
+     * Add the traits for created At and Updated At
+     */
+    use TimestampableTrait;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -56,12 +71,6 @@ class Role
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank()]
     private ?string $description = null;
-
-    #[ORM\Column]
-    private ?\DateTimeImmutable $createdAt = null;
-
-    #[ORM\Column]
-    private ?\DateTimeImmutable $updatedAt = null;
 
     /**
      * @var Collection<int, User>
@@ -109,31 +118,7 @@ class Role
 
         return $this;
     }
-
-    public function getCreatedAt(): ?\DateTimeImmutable
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTimeImmutable $createdAt): static
-    {
-        $this->createdAt = $createdAt;
-
-        return $this;
-    }
-
-    public function getUpdatedAt(): ?\DateTimeImmutable
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(\DateTimeImmutable $updatedAt): static
-    {
-        $this->updatedAt = $updatedAt;
-
-        return $this;
-    }
-
+    
     /**
      * @return Collection<int, User>
      */
