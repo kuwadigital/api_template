@@ -3,6 +3,7 @@
 namespace App\Security;
 
 use App\Repository\Security\ApiTokenRepository;
+use App\Service\ClientInfoService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
@@ -13,16 +14,24 @@ class ApiTokenHandler implements AccessTokenHandlerInterface
 {
     public function __construct(
         private ApiTokenRepository $apiTokenRepository,
-        protected EntityManagerInterface $entityManager
+        protected EntityManagerInterface $entityManager,
+        protected ClientInfoService $clientInfoService,
     )
     {
     }
 
     public function getUserBadgeFrom(#[\SensitiveParameter] string $accessToken): UserBadge
     {
-        $token = $this->apiTokenRepository->findOneBy(['token' => $accessToken]);
+        $token = $this->apiTokenRepository->findOneBy([
+            'token' => $accessToken,
+            'client_ip' => $this->clientInfoService->getClientIp(),
+            'client_user_agent' => $this->clientInfoService->getUserAgent()
+        ]);
 
         if (!$token) {
+            var_dump("Test");
+            var_dump($this->clientInfoService->getClientInfo());
+            die();
             throw new BadCredentialsException();
         }
 

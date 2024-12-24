@@ -4,6 +4,7 @@ namespace App\Entity\Security;
 
 use App\Entity\Traits\TimestampableTrait;
 use App\Repository\Security\ApiTokenRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
@@ -49,6 +50,12 @@ class ApiToken
         'user:item:get'
     ])]
     private array $scope = [];
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $client_ip = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $client_user_agent = null;
 
     public function __construct(string $tokenType = self::PERSONAL_ACCESS_TOKEN_PREFIX){
         $this->token = $tokenType.bin2hex(random_bytes(32));
@@ -110,5 +117,29 @@ class ApiToken
     public function isValid(): bool
     {
         return $this->expiresAt === null || $this->expiresAt > new \DateTimeImmutable();
+    }
+
+    public function getClientIp(): ?string
+    {
+        return $this->client_ip;
+    }
+
+    public function setClientIp(?string $client_ip): static
+    {
+        $this->client_ip = $client_ip;
+
+        return $this;
+    }
+
+    public function getClientUserAgent(): ?string
+    {
+        return $this->client_user_agent;
+    }
+
+    public function setClientUserAgent(?string $client_user_agent): static
+    {
+        $this->client_user_agent = $client_user_agent;
+
+        return $this;
     }
 }

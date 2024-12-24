@@ -5,6 +5,7 @@ namespace App\Controller;
 use ApiPlatform\Metadata\IriConverterInterface;
 use App\Entity\Security\ApiToken;
 use App\Entity\Security\User;
+use App\Service\ClientInfoService;
 use App\Service\EntityNameService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -17,7 +18,8 @@ class InitLoginController extends AbstractController
 
     public function __construct(
         protected EntityNameService $entityNameService,
-        protected EntityManagerInterface $entityManager
+        protected EntityManagerInterface $entityManager,
+        protected ClientInfoService $clientInfoService
     )
     {}
 
@@ -84,6 +86,8 @@ class InitLoginController extends AbstractController
         $apiToken = new ApiToken();
         $apiToken->setExpiresAt($expiresAt);
         $apiToken->setScope($tokenScope);
+        $apiToken->setClientIp($this->clientInfoService->getClientIp());
+        $apiToken->setClientUserAgent($this->clientInfoService->getUserAgent());
         $user->addApiToken($apiToken);
         
         $this->entityManager->persist($user);
