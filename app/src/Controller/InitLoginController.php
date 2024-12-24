@@ -56,7 +56,8 @@ class InitLoginController extends AbstractController
              * The user is ROOT, we give all existing permissions
              */
             $tokenScope = $this->entityNameService->getAllEntityNamesAsPermissions();
-
+            $tokenScope[] = 'ROLE_ROOT'; // adding the special role ROOT to assure some fonctionalities that schould only be made by a ROOT
+            
         } else {
             /**
              * The User is not ROOT, getting the permissions from the roles

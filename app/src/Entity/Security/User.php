@@ -2,6 +2,7 @@
 
 namespace App\Entity\Security;
 
+use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
@@ -99,6 +100,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         'user:item:put',
         'user:item:patch',
     ])]
+    #[ApiProperty(security: "is_granted('ROLE_ROOT')")]
     private array $roles = [];
 
     /**
@@ -150,6 +152,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         'user:item:put',
         'user:item:patch',
     ])]
+    #[ApiProperty(security: "is_granted('ROLE_ROOT')")]
     private Collection $appRoles;
 
     /**

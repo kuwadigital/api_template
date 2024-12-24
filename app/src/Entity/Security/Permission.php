@@ -2,6 +2,7 @@
 
 namespace App\Entity\Security;
 
+use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
@@ -14,6 +15,8 @@ use App\Repository\Security\PermissionRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: PermissionRepository::class)]
 #[ORM\HasLifecycleCallbacks]
@@ -48,6 +51,8 @@ use Doctrine\ORM\Mapping as ORM;
         )
     ]
 )]
+#[ORM\UniqueConstraint(name: 'UNIQ_PERMISSION_ACTION_COMBINATION', fields: ['entityName', 'permissionAction'])]
+#[UniqueEntity(fields: ['entityName', 'permissionAction'], message: 'There is already an combination of this entityName and permissionAction')]
 class Permission
 {
     /**
@@ -58,21 +63,54 @@ class Permission
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups([
+        'permission:collection:get',
+        'permission:item:get'
+    ])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups([
+        'permission:collection:get',
+        'permission:item:get',
+        'permission:item:post',
+        'permission:item:put',
+        'permission:item:patch'
+    ])]
     private ?string $entityName = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups([
+        'permission:collection:get',
+        'permission:item:get',
+        'permission:item:post',
+        'permission:item:put',
+        'permission:item:patch'
+    ])]
     private ?string $description = null;
 
     /**
      * @var Collection<int, Role>
      */
     #[ORM\ManyToMany(targetEntity: Role::class, mappedBy: 'permissions')]
+    #[Groups([
+        'permission:collection:get',
+        'permission:item:get',
+        'permission:item:post',
+        'permission:item:put',
+        'permission:item:patch'
+    ])]
+    #[ApiProperty(security: "is_granted('ROLE_ROOT')")]
     private Collection $roles;
 
     #[ORM\Column(length: 255)]
+    #[Groups([
+        'permission:collection:get',
+        'permission:item:get',
+        'permission:item:post',
+        'permission:item:put',
+        'permission:item:patch'
+    ])]
     private ?string $permissionAction = null;
 
     public function __construct()
