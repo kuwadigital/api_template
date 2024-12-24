@@ -29,9 +29,6 @@ class ApiTokenHandler implements AccessTokenHandlerInterface
         ]);
 
         if (!$token) {
-            var_dump("Test");
-            var_dump($this->clientInfoService->getClientInfo());
-            die();
             throw new BadCredentialsException();
         }
 
