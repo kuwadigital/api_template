@@ -25,3 +25,7 @@ services:
     App\EventListener\MaintenanceListener:
         tags:
             - { name: kernel.event_listener, event: kernel.request, priority: 255 }
+    
+    App\EventListener\LogoutListener:
+        tags:
+            - { name: 'kernel.event_subscriber' }
