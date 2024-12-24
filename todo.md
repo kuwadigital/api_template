@@ -1,5 +1,3 @@
-# faire en sorte que le token se cree pour 20mins et apres chaque requete, se repousse de 20mins si le token est encore valid sinon redemenande de se connecter
-# apres avoir cree le token, charger tous les access de l'utilisateur dans le token en question. ('juste une fois lors de la premiere connexion')
 # faire en sorte que le token ne soit disponible que pour une seule addresse IP: pour ce faire ajouter un nouveau champ dans la table de token user IP addresse
-# creer une commande qui lit tous les entités disponible et creer les permissions CRUD+P (create, read, update, delete + patch) pour chaque entité: ce qui permetra de gerer les roles et les droits d'access. le super User devra avoir tous les droits --> ajouter un Entity SuperUserAccess, un user a un SuperUserAccess, l'access SuperUser peut appatenir a plusieurs Users
+# ecrire une commande qui met a jour les permissions dans la base de donnees en utilisant le service de name entity deja ecrit
 # ajouter les tests unitaires

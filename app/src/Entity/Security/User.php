@@ -118,7 +118,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @var string The hashed password
      */
     #[ORM\Column]
-    #[Assert\NotBlank()]
     private ?string $password = null;
 
     #[SerializedName('password')]
@@ -156,7 +155,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @var Collection<int, ApiToken>
      */
-    #[ORM\OneToMany(targetEntity: ApiToken::class, mappedBy: 'ownedby')]
+    #[ORM\OneToMany(targetEntity: ApiToken::class, mappedBy: 'ownedby', cascade: ['persist'], orphanRemoval: true)]
     #[Groups([
         'user:collection:get',
         'user:item:get',
@@ -210,7 +209,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         if ($this->accessTokenRoles == null) {
             
             /**
-             * @todo: transformer les appRoles and user Roles ici pour donner directement les acces
+             * @infos: Si l'utilisateur ne passe pas le token, il n aura pas d'authorisations
              */
             $roles = $this->roles;
 
@@ -326,6 +325,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+    #[SerializedName('password')]
     public function setPlainPassword(string $plainPassword): self
     {
         $this->plainPassword = $plainPassword;

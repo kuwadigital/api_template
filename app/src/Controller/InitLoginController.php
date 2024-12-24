@@ -3,7 +3,10 @@
 namespace App\Controller;
 
 use ApiPlatform\Metadata\IriConverterInterface;
+use App\Entity\Security\ApiToken;
 use App\Entity\Security\User;
+use App\Service\EntityNameService;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -11,6 +14,14 @@ use Symfony\Component\Security\Http\Attribute\CurrentUser;
 
 class InitLoginController extends AbstractController
 {
+
+    public function __construct(
+        protected EntityNameService $entityNameService,
+        protected EntityManagerInterface $entityManager
+    )
+    {}
+
+
     #[Route('/init/login/form', name: 'app_init_login_form')]
     public function index() : Response
     {
@@ -27,8 +38,57 @@ class InitLoginController extends AbstractController
         }
 
         /**
-         * @todo: delete all existing token and create a new one with all the acutal Roles and return it to the requester
+         * Getting the App Roles of the user
          */
+        $appRoles = [];
+        foreach($user->getAppRoles() as $role) {
+            $appRoles[] = $role->getName();
+        }
+        /**
+         * Generating the scope for the user
+         */
+        $tokenScope = [];
+
+        if (in_array('ROOT', $appRoles)) {
+            /**
+             * The user is ROOT, we give all existing permissions
+             */
+            $tokenScope = $this->entityNameService->getAllEntityNamesAsPermissions();
+
+        } else {
+            /**
+             * The User is not ROOT, getting the permissions from the roles
+             */
+            foreach($user->getAppRoles() as $role) {
+                foreach($role->getPermissions() as $permission) {
+                    if (in_array(sprintf('ROLE_%s_%s', strtoupper($permission->getEntityName()), $permission->getPermissionAction()), $tokenScope ) == false) {
+                        $tokenScope[] = sprintf('ROLE_%s_%s', strtoupper($permission->getEntityName()), $permission->getPermissionAction());
+                    }
+                }
+            }
+        }
+
+        /**
+         * Delete all existing token and create a new one with all the acutal Roles and return it to the requester
+         */
+        foreach($user->getApiTokens() as $apiToken) {
+            $user->removeApiToken($apiToken);
+        }
+
+        // Create a DateTimeImmutable instance for "now"
+        $now = new \DateTimeImmutable();
+
+        // Add 30 minutes to the current time
+        $expiresAt = $now->modify('+30 minutes');
+
+        $apiToken = new ApiToken();
+        $apiToken->setExpiresAt($expiresAt);
+        $apiToken->setScope($tokenScope);
+        $user->addApiToken($apiToken);
+        
+        $this->entityManager->persist($user);
+        $this->entityManager->flush();
+
         return $this->json(
             [
                 'user' => $iriConverterInterface->getIriFromResource($user),

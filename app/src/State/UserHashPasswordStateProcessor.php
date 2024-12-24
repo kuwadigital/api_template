@@ -22,7 +22,7 @@ class UserHashPasswordStateProcessor implements ProcessorInterface
         if ($data->getPlainPassword()) {
             $data->setPassword($this->userPasswordHasher->hashPassword($data, $data->getPlainPassword()));
         }
-
+        
         return $this->persistProcessor->process($data, $operation, $uriVariables, $context);
     }
 }

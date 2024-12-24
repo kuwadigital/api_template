@@ -1,17 +1,19 @@
 <?php
 
-namespace App\Factory;
+namespace App\Factory\Security;
 
-use App\Entity\Security\ApiToken;
+use App\Entity\Security\Role;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 
 /**
- * @extends PersistentProxyObjectFactory<ApiToken>
+ * @extends PersistentProxyObjectFactory<Role>
  */
-final class ApiTokenFactory extends PersistentProxyObjectFactory
+final class RoleFactory extends PersistentProxyObjectFactory
 {
     /**
      * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#factories-as-services
+     *
+     * @todo inject services if required
      */
     public function __construct()
     {
@@ -19,24 +21,19 @@ final class ApiTokenFactory extends PersistentProxyObjectFactory
 
     public static function class(): string
     {
-        return ApiToken::class;
+        return Role::class;
     }
 
     /**
      * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#model-factories
+     *
+     * @todo add your default values here
      */
     protected function defaults(): array|callable
     {
         return [
-            'createdAt' => \DateTimeImmutable::createFromMutable(self::faker()->dateTime()),
-            'ownedby' => UserFactory::new(),
-            'scope' => [
-                'ROLE_USER_GET',
-                'ROLE_USER_GET_COLLECTION',
-                'ROLE_USER_POST',
-                'ROLE_USER_PUT',
-                'ROLE_USER_PATCH'
-            ]
+            'description' => self::faker()->text(255),
+            'name' => self::faker()->text(25),
         ];
     }
 
@@ -46,7 +43,7 @@ final class ApiTokenFactory extends PersistentProxyObjectFactory
     protected function initialize(): static
     {
         return $this
-            // ->afterInstantiate(function(ApiToken $apiToken): void {})
+            // ->afterInstantiate(function(Role $role): void {})
         ;
     }
 }
