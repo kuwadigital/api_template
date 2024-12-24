@@ -1,3 +1,8 @@
+PROJECT_SRC= $(CURDIR)/app
+PROJECT_SQL_FILE= $(CURDIR)/db
+
+include $(shell find ${CURDIR} -maxdepth 1 -name '.env*' ! -name '*.dist' | sort -n )
+
 # Executables (local)
 DOCKER_COMP = docker compose
 
@@ -42,6 +47,53 @@ app-clean: ## Clear App cache (env=dev)
 
 app-route: ## Lists all your application routes
 	@$(CONSOLE) debug:route
+
+app-db-import: app-db-import-mysql
+
+
+app-db-available-mysql:
+	@echo "CHECK AVAILABILITY OF MYSQL-SERVICE ..."
+	@while ! (docker-compose exec -T ${MYSQL_SERVICE} mysql -u ${MYSQL_USER} -p${MYSQL_PASSWORD} --execute='show databases;'); do \
+		sleep 1; \
+		WAIT=$$(($$WAIT + 1));  \
+		echo  ">> Mysql service is not available - Waiting $${WAIT}s";  \
+		if [ "$$WAIT" -gt 120 ]; then  \
+			echo ">> Error: Timeout 120s by waiting for Mysql service";  \
+			exit 1;  \
+		fi  \
+	done
+	@echo ">> Mysql service is now available"
+	@sleep 2;
+	@echo
+	@echo
+
+
+app-db-import-mysql: app-db-available-mysql
+	@echo "IMPORT MYSQL-DATABASE ..."
+	@for dbName in ${MYSQL_DATABASE}; do  \
+			if [ -f "${PROJECT_SQL_FILE}/$$dbName.sql" ]; then \
+				echo ">> Import database ${PROJECT_SQL_FILE}/$$dbName.sql on ${MYSQL_SERVICE}"; \
+				docker-compose exec -T  ${MYSQL_SERVICE} sh -c "mysqldump -u${MYSQL_USER} -p${MYSQL_PASSWORD} --no-data --add-drop-table $$dbName | grep ^DROP | mysql --init-command='SET SESSION FOREIGN_KEY_CHECKS=0;' -u${MYSQL_USER} -p${MYSQL_PASSWORD} -v $$dbName";  \
+				docker-compose exec -T  ${MYSQL_SERVICE} mysql --init-command='SET SESSION FOREIGN_KEY_CHECKS=0;' -u root -p${MYSQL_ROOT_PASSWORD} --force $$dbName < "${PROJECT_SQL_FILE}/$$dbName.sql"; \
+			fi \
+	done
+	@echo
+	@echo ">> Import proccess is finished"
+	@echo
+	@echo
+
+
+app-db-export: app-db-export-mysql
+
+app-db-export-mysql:
+	@echo "EXPORT MYSQL-DATABASE ..."
+	@for dbName in ${MYSQL_DATABASE}; do \
+		docker-compose exec -T  ${MYSQL_SERVICE} mysqldump --single-transaction -u${MYSQL_USER} -p${MYSQL_PASSWORD} $$dbName > "${PROJECT_SQL_FILE}/$$dbName.sql"; \
+	done
+	@echo ">> Export proccess is finished"
+	@echo
+	@echo
+
 
 ##—————————————————————————————— Docker
 docker-restart: stop start ## Restart the Docker containers (stop start)
